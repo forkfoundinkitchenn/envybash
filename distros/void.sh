@@ -47,6 +47,11 @@ query_mode() {
   exit 0
 }
 
+if [[ $# -eq 0 ]]; then
+  disclaimer
+  exit 1
+fi
+
 OPTIND=1
 while getopts "ihq" opt; do
   case "$opt" in
@@ -59,8 +64,3 @@ while getopts "ihq" opt; do
     ;;
   esac
 done
-
-if [[ $# -eq 0 ]]; then
-  disclaimer
-  exit 1
-fi

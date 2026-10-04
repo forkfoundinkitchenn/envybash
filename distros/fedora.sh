@@ -11,6 +11,7 @@ integrated_mode() {
     exit 1
   fi
 
+  o_log "switching mode to integrated, please wait.."
   rm -f "$udev_rules_d/99-envybash.rules"
   rm -f "$modprobe_d/99-envybash.conf"
   cp "$templates_d/99-envybash.conf" "$modprobe_d"
@@ -30,6 +31,7 @@ hybrid_mode() {
     e_log "already using hybrid mode!"
     exit 1
   fi
+  o_log "switching mode to hybrid, please wait.."
 
   rm -f "$udev_rules_d/99-envybash.rules"
   rm -f "$modprobe_d/99-envybash.conf"

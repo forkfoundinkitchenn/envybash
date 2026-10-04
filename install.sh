@@ -2,7 +2,7 @@
 
 install_root() {
   envybash=/usr/share/envybash
-  if [[ -e $envybash ]]; then
+  if [[ -e $envybash && -f /usr/bin/envybash ]]; then
     echo "[-] envybash is already installed"
     exit 1
   fi

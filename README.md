@@ -15,7 +15,7 @@ flags: -i (integrated), -h (hybrid), -q (query)
 ```
 
 should work on:
-- Fedora 44
+- Fedora
 - Void Linux
 
 Derivatives of these distros currently do not work.

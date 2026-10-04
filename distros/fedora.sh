@@ -54,7 +54,7 @@ query_mode() {
 }
 
 if [[ $# -eq 0 ]]; then
-  disclaimer
+  help_me
   exit 1
 fi
 
@@ -65,7 +65,7 @@ while getopts "ihq" opt; do
   h) hybrid_mode ;;
   q) query_mode ;;
   *)
-    disclaimer
+    help_me
     exit 1
     ;;
   esac

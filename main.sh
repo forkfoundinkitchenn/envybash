@@ -15,7 +15,7 @@ e_log() {
   echo "[-] $@" >&2
 }
 
-disclaimer() {
+help_me() {
   e_log "flags: -i (integrated), -h (hybrid), -q (query)"
   exit 0
 }

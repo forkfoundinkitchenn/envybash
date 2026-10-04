@@ -9,6 +9,8 @@ envybash=/usr/share/envybash
 
 if [[ -e $envybash && -f /usr/bin/envybash ]]; then
   echo "[-] envybash is already installed, overwriting"
+  rm -rf $envybash
+  rm /usr/bin/envybash
 fi
 mkdir -p "$envybash"
 git clone https://github.com/forkfoundinkitchenn/envybash.git "$envybash"

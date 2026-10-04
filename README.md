@@ -1,4 +1,5 @@
 # envybash
 Optimus PRIME Manager written in Bash
 
-this project is highly experimental and isn't meant to be a drop-in replacement for envycontrol at the moment. do not actually try to use this.
+at the moment, this only handles nvidia through modprobe and udev rules, it is not an effective replacement for envycontrol nor similar tools
+**use at your own risk**!

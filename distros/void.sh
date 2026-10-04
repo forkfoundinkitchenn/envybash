@@ -60,5 +60,7 @@ while getopts "ihq" opt; do
   esac
 done
 
-disclaimer
-exit 1
+if [[ $# -eq 0 ]]; then
+  disclaimer
+  exit 1
+fi

@@ -37,9 +37,4 @@ if [ ! -f $distros_d/${ID}.sh ]; then
   exit 1
 fi
 
-if [ ! -f $distros_d/${ID_LIKE}.sh ]; then
-  e_log "distro script file not found"
-  exit 1
-fi
-
 source "$distros_d/${ID}.sh" "$@"

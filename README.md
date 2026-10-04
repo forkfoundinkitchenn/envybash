@@ -13,3 +13,8 @@ usage:
 ```
 flags: -i (integrated), -h (hybrid), -q (query)
 ```
+
+should work on:
+- Fedora 44
+- Arch Linux
+- Void Linux

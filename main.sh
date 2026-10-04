@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-envybash_home=$(dirname ${BASH_SOURCE[0]})
+envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 distros_d=$envybash_home/distros
 templates_d=$envybash_home/templates
 nvidia_status_path=$envybash_home/status

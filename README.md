@@ -18,4 +18,5 @@ should work on:
 - Fedora 44
 - Arch Linux
 - Void Linux
+
 Derivatives of these distros currently do not work.

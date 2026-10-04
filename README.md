@@ -1,7 +1,7 @@
 # envybash
 NVIDIA power management wrapper script written in Bash
 
-at the moment, this only handles nvidia through modprobe and udev rules, it is not an effective replacement for envycontrol nor similar tools
+at the moment, this project lacks features and is not meant to be a drop-in replacement for envycontrol nor similar tools.
 
 **use at your own risk**!
 

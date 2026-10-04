@@ -1,6 +1,4 @@
 #!/bin/bash
-set -euo pipefail
-
 envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 distros_d=$envybash_home/distros
 templates_d=$envybash_home/templates

@@ -6,7 +6,6 @@ nvidia_status_path=$envybash_home/status
 udev_rules_d=/etc/udev/rules.d
 modprobe_d=/etc/modprobe.d
 ID=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
-ID_LIKE=$(grep '^ID_LIKE=' /etc/os-release | cut -d= -f2 | tr -d '"')
 
 o_log() {
   echo "[*] $@"
@@ -33,12 +32,8 @@ parse_status() {
 }
 
 if [[ ! -f $distros_d/${ID}.sh ]]; then
-  ID=$ID_LIKE
-fi
-
-if [[ -f $distros_d/${ID}.sh ]]; then
-  source "$distros_d/${ID}.sh" "$@"
-else
   e_log "couldn't find distro script file, your distro may not be supported"
   exit 1
 fi
+
+source "$distros_d/${ID}.sh" "$@"

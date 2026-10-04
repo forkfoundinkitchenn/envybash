@@ -28,9 +28,7 @@ root_check() {
 }
 
 parse_status() {
-  while IFS= read -r line; do
-    nvidia_status=$(<$nvidia_status_path)
-  done <$nvidia_status_path
+  nvidia_status=$(<$nvidia_status_path)
 }
 
 if [ ! -f $distros_d/${ID}.sh ]; then

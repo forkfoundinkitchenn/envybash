@@ -4,7 +4,7 @@
 set -euo pipefail
 
 regenerate_initramfs() {
-  xbps-reconfigure --force linux$(uname -r | cut -d. -f1-2)
+  dracut --force
 }
 
 integrated_mode() {

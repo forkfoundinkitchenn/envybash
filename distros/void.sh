@@ -3,6 +3,10 @@
 ## DO NOT RUN THIS FILE BY ITSELF. IT WILL NOT WORK.
 set -euo pipefail
 
+regenerate_initramfs() {
+  xbps-reconfigure --force linux$(uname -r | cut -d. -f1-2)
+}
+
 integrated_mode() {
   root_check
   parse_status
@@ -17,7 +21,7 @@ integrated_mode() {
   cp "$templates_d/99-envybash.rules" "$udev_rules_d"
   udevadm control --reload-rules
   udevadm trigger
-  xbps-reconfigure --force linux$(uname -r | grep -o "^[0-9]\+\.[0-9]\+")
+  regenerate_initramfs
   echo "integrated" >"$nvidia_status_path"
   o_log "set to integrated mode, restart your device to apply changes"
   exit 0
@@ -35,7 +39,7 @@ hybrid_mode() {
   rm -f "$modprobe_d/99-envybash.conf"
   udevadm control --reload-rules
   udevadm trigger
-  xbps-reconfigure --force linux$(uname -r | grep -o "^[0-9]\+\.[0-9]\+")
+  regenerate_initramfs
   echo "hybrid" >"$nvidia_status_path"
   o_log "set to hybrid mode, restart your device to apply changes"
   exit 0

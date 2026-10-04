@@ -20,7 +20,7 @@ integrated_mode() {
   udevadm trigger
   dracut --force
   echo "integrated" >"$nvidia_status_path"
-  o_log "set to integrated mode, you can now restart your computer"
+  o_log "set to integrated mode, restart your device to apply changes"
   exit 0
 }
 
@@ -39,7 +39,7 @@ hybrid_mode() {
   udevadm trigger
   dracut --force
   echo "hybrid" >"$nvidia_status_path"
-  o_log "set to hybrid mode, you may now restart your computer"
+  o_log "set to hybrid mode, restart your device to apply changes"
   exit 0
 }
 

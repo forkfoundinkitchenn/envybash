@@ -32,11 +32,11 @@ parse_status() {
   nvidia_status=$(<$nvidia_status_path)
 }
 
-if [ ! -f $distros_d/${ID}.sh ]; then
+if [[ ! -f $distros_d/${ID}.sh ]]; then
   ID=$ID_LIKE
 fi
 
-if [ -f $distros_d/${ID}.sh ]; then
+if [[ -f $distros_d/${ID}.sh ]]; then
   source "$distros_d/${ID}.sh" "$@"
 else
   e_log "couldn't find distro script file, your distro may not be supported"

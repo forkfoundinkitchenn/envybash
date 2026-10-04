@@ -10,7 +10,7 @@ install_root() {
   git clone https://github.com/forkfoundinkitchenn/envybash.git "$envybash"
   chmod +x $envybash/install.sh
   chmod +x $envybash/main.sh
-  ln -s $envybash/main.sh /usr/bin/
+  ln -s $envybash/main.sh /usr/bin/envybash
   if [[ -f /etc/udev/rules.d/99-envybash.rules && -f /etc/modprobe.d/99-envybash.conf ]]; then
     echo "integrated" >$envybash/status
   else

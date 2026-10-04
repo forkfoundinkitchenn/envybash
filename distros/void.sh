@@ -17,7 +17,7 @@ integrated_mode() {
   cp "$templates_d/99-envybash.rules" "$udev_rules_d"
   udevadm control --reload-rules
   udevadm trigger
-  xbps-reconfigure --force linux
+  xbps-reconfigure --force linux$(uname -r | grep -o "^[0-9]\+\.[0-9]\+")
   echo "integrated" >"$nvidia_status_path"
   o_log "set to integrated mode, you can now restart your computer"
   exit 0
@@ -35,7 +35,7 @@ hybrid_mode() {
   rm -f "$modprobe_d/99-envybash.conf"
   udevadm control --reload-rules
   udevadm trigger
-  xbps-reconfigure --force linux
+  xbps-reconfigure --force linux$(uname -r | grep -o "^[0-9]\+\.[0-9]\+")
   echo "hybrid" >"$nvidia_status_path"
   o_log "set to hybrid mode, you may now restart your computer"
   exit 0

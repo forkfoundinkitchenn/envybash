@@ -33,8 +33,12 @@ parse_status() {
 }
 
 if [ ! -f $distros_d/${ID}.sh ]; then
-  e_log "distro script file not found"
-  exit 1
+  ID=$ID_LIKE
 fi
 
-source "$distros_d/${ID}.sh" "$@"
+if [ -f $distros_d/${ID}.sh ]; then
+  source "$distros_d/${ID}.sh" "$@"
+else
+  e_log "couldn't find distro script file, your distro may not be supported"
+  exit 1
+fi

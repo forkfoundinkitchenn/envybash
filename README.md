@@ -4,7 +4,8 @@ An attempt of reimplementing EnvyControl in Bash
 ## NOTES
 1. This project is currently in a pre-alpha phase and WILL lack features, like the NVIDIA mode and RTD3 power management.
 2. At the moment, only Arch, Void, and Fedora are supported. I'm currently working on adding support for more distros and derivatives.
-3. This is not intended to be a drop-in replacement for EnvyControl nor similar tools, I just wrote this for my own convenience and decided to make it a bigger thing.. **Use at your own risk!!**
+3. I have hardly looked at EnvyControl's source code, so most of the code is my interpretation of how it works.
+4. This is not intended to be a drop-in replacement for EnvyControl nor similar tools, I just wrote this for my own convenience and decided to make it a bigger thing.. **Use at your own risk!!**
 
 ## INSTALLATION METHODS
 ### Manual

@@ -35,6 +35,7 @@ local_install() {
   chmod +x $envybash_home/main.sh
   ln -s $envybash_home/main.sh ~/.local/bin
   o_log "installed envybash in $envybash_home"
+  o_log "make sure you have $HOME/.local/bin in your PATH to run the envybash command"
   exit 0
 }
 

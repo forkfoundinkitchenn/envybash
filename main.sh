@@ -2,6 +2,7 @@
 set -euo pipefail
 
 envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+version='pre-alpha-0.1'
 nvidia_status_path=$HOME/.envybash-state
 udev_rule=/etc/udev/rules.d/99-envybash.rules
 modprobe_conf=/etc/modprobe.d/99-envybash.conf
@@ -161,6 +162,10 @@ query_mode() {
   fi
 }
 
+show_info() {
+  echo "version: $version"
+}
+
 # this is probably a really bad way to do it but it works for now
 if [[ $# -eq 0 ]]; then
   help_me
@@ -173,7 +178,7 @@ elif [[ $# -gt 0 && $1 = - ]]; then
 fi
 
 # main
-while getopts ":s:vqd" flag; do
+while getopts ":s:vqdi" flag; do
   case "$flag" in
   s)
     case "$OPTARG" in
@@ -185,6 +190,7 @@ while getopts ":s:vqd" flag; do
   v) verbose_flag=true ;;
   q) query_mode ;;
   d) dry_run=true ;;
+  i) show_info ;;
   *) help_me ;;
   esac
 done

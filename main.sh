@@ -163,8 +163,9 @@ query_mode() {
 }
 
 show_info() {
-  echo "version: $version"
-  echo "lives in: $envybash_home"
+  o_log "current version: $version"
+  o_log "git lives in: $envybash_home"
+  o_log "shell script lives in: $(dirname "${BASH_SOURCE[0]}")"
 }
 
 # this is probably a really bad way to do it but it works for now
@@ -188,9 +189,15 @@ while getopts ":s:vqdi" flag; do
     *) help_me ;;
     esac
     ;;
-  v) verbose_flag=true ;;
+  v)
+    o_log "verbose logging enabled for this instance"
+    verbose_flag=true
+    ;;
   q) query_mode ;;
-  d) dry_run=true ;;
+  d)
+    o_log "doing a dry run for this instance"
+    dry_run=true
+    ;;
   i) show_info ;;
   *) help_me ;;
   esac

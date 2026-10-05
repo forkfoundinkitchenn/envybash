@@ -22,7 +22,9 @@ v_log() {
   fi
 }
 help_me() {
-  e_log "flags: -i (integrated), -h (hybrid), -q (query)"
+  echo "envybash usage:
+flags: -s (switch), -v (verbose), -q (query), -d (dry run)
+modes: integrated, hybrid" >&2
   exit 1
 }
 root_check() {
@@ -171,3 +173,9 @@ while getopts "s:vqd" flag &>/dev/null; do
 
   thing=$flag
 done
+
+if [[ $# -eq 0 ]]; then
+  help_me
+elif [[ $# -ge 0 && $1 != "-$thing" ]]; then
+  help_me
+fi

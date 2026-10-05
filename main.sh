@@ -87,6 +87,7 @@ integrated_mode() {
     o_log "reloaded udev rules"
     o_log "imported config to $modprobe_conf"
     o_log "regenerating initramfs"
+    o_log "detected distro id: $id"
     o_log "set to integrated mode"
     exit 0
   fi
@@ -118,6 +119,7 @@ hybrid_mode() {
     o_log "deleted $udev_rule and $modprobe_conf"
     o_log "reloaded udev rules"
     o_log "regenerating initramfs"
+    o_log "detected distro id: $id"
     o_log "set to hybrid mode"
     exit 0
   fi

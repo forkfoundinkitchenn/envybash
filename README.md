@@ -22,7 +22,7 @@ git clone https://github.com/forkfoundinkitchenn/envybash.git
 ln -sf /directory/to/envybash/main.sh ~/.local/bin/envybash
 ```
 ### Automatic
-1. Run this command
+1. Run this command (local install by default, run as root for a global install)
 ```
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/forkfoundinkitchenn/envybash/refs/heads/main/install.sh)"
 ```

@@ -24,7 +24,7 @@ v_log() {
 }
 help_me() {
   echo "envybash usage:
-flags: -s (switch), -v (verbose), -q (query), -d (dry run)
+  flags: -s (switch), -v (verbose), -q (query), -d (dry run), -i (info)
 modes: integrated, hybrid" >&2
   exit 1
 }

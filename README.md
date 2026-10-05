@@ -6,7 +6,7 @@ An attempt of reimplementing EnvyControl in Bash
 2. At the moment, only Arch, Void, and Fedora are supported. I'm currently working on adding support for more distros and derivatives.
 3. I have hardly looked at EnvyControl's source code, so this is mostly my interpretation of how it works.
 4. This is not intended to be a drop-in replacement for EnvyControl nor similar tools, I just wrote this for my own convenience and decided to make it a bigger thing.. **Use at your own risk!!**
-5. A local install may not work as expected when using ``sudo``.
+5. An automatic local install won't work out of the box as when you run ``sudo``, it won't find the envybash shell script in its hardcoded PATH. There are a few workarounds to this, but I would just recommend doing a global install instead.
 
 ## INSTALLATION METHODS
 ### Manual

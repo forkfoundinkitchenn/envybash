@@ -159,6 +159,14 @@ query_mode() {
   fi
 }
 
+if [[ $# -eq 0 ]]; then
+  help_me
+elif [[ $# -gt 0 && $1 != -* ]]; then
+  help_me
+elif [[ $# -gt 0 && $1 = -- ]]; then
+  help_me
+fi
+
 # main
 while getopts ":s:vqd" flag; do
   case "$flag" in
@@ -175,7 +183,3 @@ while getopts ":s:vqd" flag; do
   *) help_me ;;
   esac
 done
-
-if [[ $# -eq 0 ]]; then
-  help_me
-fi

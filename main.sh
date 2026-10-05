@@ -23,13 +23,14 @@ help_me() {
   e_log "flags: -i (integrated), -h (hybrid), -q (query)"
   exit 1
 }
-
 root_check() {
   if [[ $EUID -ne 0 ]]; then
     e_log "you must be running this command as root"
     exit 1
   fi
 }
+
+# core logic functions
 
 rules_d_import() {
   echo -e "ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{remove}="1"
@@ -64,7 +65,3 @@ alias nova_core off
 alias nova_drm off
 alias nouveau off"
 }
-
-rules_d_import >test1.txt
-modprobe_d_import >test2.txt
-# remove sourcing distro files

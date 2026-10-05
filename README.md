@@ -22,9 +22,9 @@ git clone https://github.com/forkfoundinkitchenn/envybash.git
 ln -sf /directory/to/envybash/main.sh ~/.local/bin/envybash
 ```
 ### Automatic
-1. Run this command (needs root permissions because it does a system-wide install for now)
+1. Run this command
 ```
-sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/forkfoundinkitchenn/envybash/refs/heads/main/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/forkfoundinkitchenn/envybash/refs/heads/main/install.sh)"
 ```
 
 ## USAGE

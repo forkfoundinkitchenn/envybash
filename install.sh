@@ -26,6 +26,7 @@ local_install() {
       exit 1
     fi
 
+    o_log "overwriting"
     rm -rf $envybash_home
     rm -f ~/.local/bin/envybash
   fi
@@ -50,6 +51,7 @@ global_install() {
       exit 1
     fi
 
+    o_log "overwriting.."
     rm -rf $envybash_home
     rm -f /usr/bin/envybash
   fi

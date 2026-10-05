@@ -17,12 +17,12 @@ local_install() {
     e_log "envybash is already installed system-wide"
     exit 1
   elif [[ -e $envybash_home ]]; then
-    o_log "envybash is already installed for your user, do you wanna overwrite it?"
+    e_log "envybash is already installed for your user, do you wanna overwrite it?"
     read -p "[Y/n] " answer
     shopt -s nocasematch
 
     if [[ $answer = "n" ]]; then
-      o_log "aborting.."
+      e_log "aborting.."
       exit 1
     fi
 
@@ -42,12 +42,12 @@ global_install() {
   o_log "installing for all users.."
 
   if [[ -e $envybash_home ]]; then
-    o_log "envybash is already installed onto your system, do you wanna overwrite it?"
+    e_log "envybash is already installed onto your system, do you wanna overwrite it?"
     read -p "[Y/n] " answer
     shopt -s nocasematch
 
     if [[ $answer = "n" ]]; then
-      o_log "aborting.."
+      e_log "aborting.."
       exit 1
     fi
 

@@ -160,7 +160,7 @@ query_mode() {
 }
 
 # main
-while getopts "s:vqd" flag &>/dev/null; do
+while getopts "s:vqd:" flag; do
   case "$flag" in
   s)
     case "$OPTARG" in

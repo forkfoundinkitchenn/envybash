@@ -36,6 +36,7 @@ local_install() {
   ln -s $envybash_home/main.sh ~/.local/bin/envybash
   o_log "installed envybash in $envybash_home"
   o_log "make sure you have $HOME/.local/bin in your PATH to run the envybash command"
+  o_log "sudo may not recognize the local binary!!"
   exit 0
 }
 

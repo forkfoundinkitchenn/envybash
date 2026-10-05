@@ -72,6 +72,10 @@ regen_initramfs() {
   case "$id" in
   "void" | "fedora") dracut --force ;;
   "arch") mkinitcpio -P ;;
+  *)
+    e_log "your distro may not be supported yet, if you think this is a mistake please open an issue in the official github repo"
+    exit 1
+    ;;
   esac
 }
 

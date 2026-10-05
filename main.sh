@@ -164,12 +164,7 @@ query_mode() {
 
 show_info() {
   echo "version: $version"
-  if [[ -f /etc/envybash/main.sh ]]; then
-    installation_type="global [system-wide]"
-  elif [[ -f ~/.local/share/envybash ]]; then
-    installation_type="local [$(whoami)]"
-  fi
-  echo "installation type: $installation_type"
+  echo "lives in: $envybash_home"
 }
 
 # this is probably a really bad way to do it but it works for now

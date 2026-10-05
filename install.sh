@@ -10,7 +10,7 @@ e_log() {
 }
 
 if [[ $EUID -ne 0 ]]; then
-  echo "[-] the installer needs to be ran as root, or you can set it up manually by cloning the git repository"
+  e_log "the installer needs to be ran as root, or you can set it up manually by cloning the git repository"
   exit 1
 fi
 

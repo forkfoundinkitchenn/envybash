@@ -1,7 +1,5 @@
 #!/bin/bash
 envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-distros_d=$envybash_home/distros
-templates_d=$envybash_home/templates
 nvidia_status_path=$envybash_home/status
 udev_rules_d=/etc/udev/rules.d
 modprobe_d=/etc/modprobe.d

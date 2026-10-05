@@ -161,6 +161,7 @@ query_mode() {
   fi
 }
 
+# this is probably a really bad way to do it but it works for now
 if [[ $# -eq 0 ]]; then
   help_me
 elif [[ $# -gt 0 && $1 != -* ]]; then

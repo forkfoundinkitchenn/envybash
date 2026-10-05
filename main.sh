@@ -1,6 +1,8 @@
 #!/bin/bash
+set -euo pipefail
+
 envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-nvidia_status_path=$envybash_home/.status
+nvidia_status_path=$HOME/.envybash-state
 udev_rule=/etc/udev/rules.d/99-envybash.rules
 modprobe_conf=/etc/modprobe.d/99-envybash.conf
 id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
@@ -15,7 +17,7 @@ e_log() {
   echo "[-] $@" >&2
 }
 v_log() {
-  if [[ verbose_flag = true ]]; then
+  if [[ $verbose_flag = true ]]; then
     echo "[~] $@" >&2
   fi
 }
@@ -64,6 +66,7 @@ alias nova_drm off
 alias nouveau off"
 }
 regen_initramfs() {
+  v_log "detected distro id: $id"
   case "$id" in
   "void" | "fedora") dracut --force ;;
   "arch") mkinitcpio -P ;;
@@ -72,18 +75,28 @@ regen_initramfs() {
 
 # mode switch functions
 integrated_mode() {
-  root_check
-  if [[ -f $udev_rule || -f $modprobe_conf ]]; then
-    rm {"$udev_rule","$modprobe_conf"}                                 # default to hybrid
-    e_log "reverted to hybrid mode because of a synchronization issue" # this is probably a horrible way to do it
+  if [[ $dry_run = true ]]; then
+    o_log "!! DRY RUN !!"
+    o_log "imported rules to $udev_rule"
+    o_log "reloaded udev rules"
+    o_log "imported config to $modprobe_conf"
+    o_log "regenerating initramfs"
+    o_log "set to integrated mode"
+    exit 0
   fi
 
-  rule_import <$udev_rule
+  root_check
+  if [[ -f $udev_rule && -f $modprobe_conf ]]; then
+    e_log "active mode is already set to integrated mode"
+    exit 1
+  fi
+
+  rule_import >$udev_rule
   v_log "imported rules to $udev_rule"
   udevadm control --reload-rules
   udevadm trigger
   v_log "reloaded udev rules"
-  modprobe_import <$modprobe_conf
+  modprobe_import >$modprobe_conf
   v_log "imported config to $modprobe_conf"
   o_log "regenerating initramfs, this may take a while"
   regen_initramfs
@@ -94,8 +107,22 @@ integrated_mode() {
 }
 
 hybrid_mode() {
+  if [[ $dry_run = true ]]; then
+    o_log "!! DRY RUN !!"
+    o_log "deleted $udev_rule and $modprobe_conf"
+    o_log "reloaded udev rules"
+    o_log "regenerating initramfs"
+    o_log "set to hybrid mode"
+    exit 0
+  fi
+
   root_check
-  rm {"$udev_rule","$modprobe_conf"}
+  if [[ ! -f $udev_rule && ! -f $modprobe_conf ]]; then
+    e_log "active mode is already set to hybrid mode"
+    exit 1
+  fi
+
+  rm -f {"$udev_rule","$modprobe_conf"}
   v_log "deleted $udev_rule and $modprobe_conf"
   udevadm control --reload-rules
   udevadm trigger
@@ -127,7 +154,7 @@ query_mode() {
 }
 
 # main
-while getopts "s:vq" flag; do
+while getopts "s:vqd" flag &>/dev/null; do
   case "$flag" in
   s)
     case "$OPTARG" in
@@ -138,6 +165,9 @@ while getopts "s:vq" flag; do
     ;;
   v) verbose_flag=true ;;
   q) query_mode ;;
+  d) dry_run=true ;;
   *) help_me ;;
   esac
+
+  thing=$flag
 done

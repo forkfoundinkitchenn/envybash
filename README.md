@@ -6,6 +6,7 @@ An attempt of reimplementing EnvyControl in Bash
 2. At the moment, only Arch, Void, and Fedora are supported. I'm currently working on adding support for more distros and derivatives.
 3. I have hardly looked at EnvyControl's source code, so this is mostly my interpretation of how it works.
 4. This is not intended to be a drop-in replacement for EnvyControl nor similar tools, I just wrote this for my own convenience and decided to make it a bigger thing.. **Use at your own risk!!**
+5. A local install may not work as expected when using ``sudo``.
 
 ## INSTALLATION METHODS
 ### Manual
@@ -15,7 +16,7 @@ git clone https://github.com/forkfoundinkitchenn/envybash.git
 ```
 2. ``cd`` into the project folder and run it directly
 ```
-./main.sh -s integrated
+sudo ./main.sh -s integrated
 ```
 3. Or symlink it to a directory in your PATH
 ```

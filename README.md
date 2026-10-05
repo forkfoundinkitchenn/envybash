@@ -53,4 +53,4 @@ envybash -d -s integrated
 * Add support for derivatives + extra distros
 * Manage X11 configs
 * Add NVIDIA mode
-* Add RTD3 fine-grained control
+* Add RTD3 power management

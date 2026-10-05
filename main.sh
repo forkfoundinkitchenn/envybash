@@ -6,9 +6,11 @@ version='pre-alpha-0.1'
 nvidia_status_path=$HOME/.envybash-state
 udev_rule=/etc/udev/rules.d/99-envybash.rules
 modprobe_conf=/etc/modprobe.d/99-envybash.conf
-id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
 verbose_flag=false
 dry_run=false
+
+distro_id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+vendor_id=$(grep -m 1 'vendor_id' /proc/cpuinfo | awk '{print $3}')
 
 # helper functions
 o_log() {
@@ -24,7 +26,7 @@ v_log() {
 }
 help_me() {
   echo "envybash usage:
-  flags: -s (switch), -v (verbose), -q (query), -d (dry run), -i (info)
+  flags: -s (switch), -v (verbose), -q (query), -d (dry run), -i (debug info)
 modes: integrated, hybrid" >&2
   exit 1
 }
@@ -69,8 +71,8 @@ alias nova_drm off
 alias nouveau off"
 }
 regen_initramfs() {
-  v_log "detected distro id: $id"
-  case "$id" in
+  v_log "detected distro id: $distro_id"
+  case "$distro_id" in
   "void" | "fedora") dracut --force ;;
   "arch") mkinitcpio -P ;;
   *)
@@ -88,7 +90,7 @@ integrated_mode() {
     o_log "reloaded udev rules"
     o_log "imported config to $modprobe_conf"
     o_log "regenerating initramfs"
-    o_log "detected distro id: $id"
+    o_log "detected distro id: $distro_id"
     o_log "set to integrated mode"
     exit 0
   fi
@@ -120,7 +122,7 @@ hybrid_mode() {
     o_log "deleted $udev_rule and $modprobe_conf"
     o_log "reloaded udev rules"
     o_log "regenerating initramfs"
-    o_log "detected distro id: $id"
+    o_log "detected distro id: $distro_id"
     o_log "set to hybrid mode"
     exit 0
   fi
@@ -162,10 +164,12 @@ query_mode() {
   fi
 }
 
-show_info() {
+debug_info() {
   o_log "current version: $version"
   o_log "git lives in: $envybash_home"
   o_log "shell script lives in: $(dirname "${BASH_SOURCE[0]}")"
+  o_log "distro id: $distro_id"
+  o_log "vendor id: $vendor_id"
 }
 
 # this is probably a really bad way to do it but it works for now
@@ -198,7 +202,7 @@ while getopts ":s:vqdi" flag; do
     o_log "doing a dry run for this instance"
     dry_run=true
     ;;
-  i) show_info ;;
+  i) debug_info ;;
   *) help_me ;;
   esac
 done

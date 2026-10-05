@@ -33,7 +33,7 @@ local_install() {
 
   git clone https://github.com/forkfoundinkitchenn/envybash.git $envybash_home
   chmod +x $envybash_home/main.sh
-  ln -s $envybash_home/main.sh ~/.local/bin
+  ln -s $envybash_home/main.sh ~/.local/bin/envybash
   o_log "installed envybash in $envybash_home"
   o_log "make sure you have $HOME/.local/bin in your PATH to run the envybash command"
   exit 0

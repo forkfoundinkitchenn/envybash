@@ -167,7 +167,7 @@ query_mode() {
 debug_info() {
   o_log "current version: $version"
   o_log "git lives in: $envybash_home"
-  o_log "shell script lives in: $(dirname "${BASH_SOURCE[0]}")"
+  o_log "shell script lives in: $0"
   o_log "distro id: $distro_id"
   o_log "vendor id: $vendor_id"
 }

@@ -1,8 +1,8 @@
 #!/bin/bash
 envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-nvidia_status_path=$envybash_home/status
-udev_rules_d=/etc/udev/rules.d
-modprobe_d=/etc/modprobe.d
+nvidia_status_path=$envybash_home/.status
+udev_rule=/etc/udev/rules.d/99-envybash.rules
+modprobe_conf=/etc/modprobe.d/99-envybash.conf
 id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
 verbose_flag=false
 dry_run=false
@@ -31,15 +31,13 @@ root_check() {
 }
 
 # core logic functions
-
-rules_d_import() {
+rule_import() {
   echo -e "ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{remove}="1"
 ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x8c8000", ATTR{remove}="1"
 ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{remove}="1"
 ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", ATTR{remove}="1""
 }
-
-modprobe_d_import() {
+modprobe_import() {
   echo -e "blacklist nvidia
 blacklist nvidia_drm
 blacklist nvidia_uvm
@@ -65,3 +63,81 @@ alias nova_core off
 alias nova_drm off
 alias nouveau off"
 }
+regen_initramfs() {
+  case "$id" in
+  "void" | "fedora") dracut --force ;;
+  "arch") mkinitcpio -P ;;
+  esac
+}
+
+# mode switch functions
+integrated_mode() {
+  root_check
+  if [[ -f $udev_rule || -f $modprobe_conf ]]; then
+    rm {"$udev_rule","$modprobe_conf"}                                 # default to hybrid
+    e_log "reverted to hybrid mode because of a synchronization issue" # this is probably a horrible way to do it
+  fi
+
+  rule_import <$udev_rule
+  v_log "imported rules to $udev_rule"
+  udevadm control --reload-rules
+  udevadm trigger
+  v_log "reloaded udev rules"
+  modprobe_import <$modprobe_conf
+  v_log "imported config to $modprobe_conf"
+  o_log "regenerating initramfs, this may take a while"
+  regen_initramfs
+  o_log "set to integrated mode, restart your device to apply changes"
+
+  echo "integrated" >$nvidia_status_path
+  exit 0
+}
+
+hybrid_mode() {
+  root_check
+  rm {"$udev_rule","$modprobe_conf"}
+  v_log "deleted $udev_rule and $modprobe_conf"
+  udevadm control --reload-rules
+  udevadm trigger
+  v_log "reloaded udev rules"
+  o_log "regenerating initramfs, this may take a while"
+  regen_initramfs
+  o_log "set to hybrid mode, restart your device to apply changes"
+
+  echo "hybrid" >$nvidia_status_path
+  exit 0
+}
+
+nvidia_mode() {
+  e_log "you aren't supposed to be here!"
+}
+
+query_mode() {
+  if [[ -f $udev_rule && -f $modprobe_conf ]]; then
+    v_log "$udev_rule"
+    v_log "$modprobe_conf"
+    o_log "active mode: integrated"
+
+    echo "integrated" >$nvidia_status_path
+  else
+    o_log "active mode: hybrid"
+
+    echo "hybrid" >$nvidia_status_path
+  fi
+}
+
+# main
+while getopts "s:vq" flag; do
+  case "$flag" in
+  s)
+    case "$OPTARG" in
+    "integrated" | "i") integrated_mode ;;
+    "hybrid" | "h") hybrid_mode ;;
+    *) help_me ;;
+    esac
+    ;;
+  v) verbose_flag=true ;;
+  q) query_mode ;;
+  *) help_me ;;
+  esac
+done

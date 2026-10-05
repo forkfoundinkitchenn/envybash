@@ -165,6 +165,8 @@ elif [[ $# -gt 0 && $1 != -* ]]; then
   help_me
 elif [[ $# -gt 0 && $1 = -- ]]; then
   help_me
+elif [[ $# -gt 0 && $1 = - ]]; then
+  help_me
 fi
 
 # main

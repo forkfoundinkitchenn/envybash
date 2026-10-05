@@ -170,12 +170,8 @@ while getopts "s:vqd" flag &>/dev/null; do
   d) dry_run=true ;;
   *) help_me ;;
   esac
-
-  thing=$flag
 done
 
 if [[ $# -eq 0 ]]; then
-  help_me
-elif [[ $# -ge 0 && $1 != "-$thing" ]]; then
   help_me
 fi

@@ -7,7 +7,7 @@ nvidia_status_path=/var/cache/envybash-state
 udev_rule=/etc/udev/rules.d/99-envybash.rules
 modprobe_conf=/etc/modprobe.d/99-envybash.conf
 verbose_flag=false
-dry_run=false
+test_flag=false
 
 distro_id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
 vendor_id=$(grep -m 1 'vendor_id' /proc/cpuinfo | awk '{print $3}')
@@ -181,6 +181,10 @@ debug_info() {
 }
 
 test_run() {
+  if [[ $test_flag = false ]]; then
+    exit 1
+  fi
+
   if [[ -f $udev_rule && -f $modprobe_conf ]]; then
     o_log "$udev_rule $modprobe_conf"
   fi

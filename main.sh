@@ -135,7 +135,7 @@ switch_power_mode() {
 
     v_log "checking if run as root"
     root_check
-    v_log "checking if system is already in integrated mode"
+    v_log "checking if system is already in hybrid mode"
     if [[ ! -f $udev_rule && ! -f $modprobe_conf ]]; then
       e_log "system is already in hybrid mode!"
       exit 1
@@ -206,8 +206,14 @@ while getopts ":s:vqdi" flag; do
   case "$flag" in
   s)
     case "$OPTARG" in
-    "integrated" | "i") target_power_mode=integrated ;;
-    "hybrid" | "h") target_power_mode=hybrid ;;
+    "integrated" | "i")
+      target_power_mode="integrated"
+      switch_power_mode
+      ;;
+    "hybrid" | "h")
+      target_power_mode="hybrid"
+      switch_power_mode
+      ;;
     *)
       help_me >&2
       exit 1

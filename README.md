@@ -2,11 +2,11 @@
 An attempt of reimplementing EnvyControl in Bash
 
 ## NOTES
-1. This project is currently in a pre-alpha phase and WILL lack features, like the NVIDIA mode and RTD3 power management.
-2. At the moment, only Arch, Void, and Fedora are supported. I'm currently working on adding support for more distros and derivatives.
+1. This project is currently in a pre-alpha phase and lacks a lot of features that EnvyControl already has.
+2. At the moment, only Arch, Void, and Fedora are supported. I'm hoping to add support for derivatives and more distros soon.
 3. I have hardly looked at EnvyControl's source code, so this is mostly my interpretation of how it works.
 4. This is not intended to be a drop-in replacement for EnvyControl nor similar tools, I just wrote this for my own convenience and decided to make it a bigger thing.. **Use at your own risk!!**
-5. A local install may not work as expected when using ``sudo``.
+5. An automatic local install won't work out of the box as when you run ``sudo``, it won't find the envybash shell script in its hardcoded PATH. There are a few workarounds to this, but I would just recommend doing a global install instead.
 
 ## INSTALLATION METHODS
 ### Manual
@@ -23,9 +23,9 @@ sudo ./main.sh -s integrated
 ln -sf /directory/to/envybash/main.sh ~/.local/bin/envybash
 ```
 ### Automatic
-1. Run this command (local install by default, run as root for a global install)
+1. Run this command (omit sudo to install for your user, not recommended though)
 ```
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/forkfoundinkitchenn/envybash/refs/heads/main/install.sh)"
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/forkfoundinkitchenn/envybash/refs/heads/main/install.sh)"
 ```
 
 ## USAGE
@@ -42,9 +42,15 @@ envybash -q
 ```
 * Verbose
 ```
-sudo envybash -vs integrated
+sudo envybash -v -s integrated
 ```
 * Dry run
 ```
-envybash -ds integrated
+envybash -d -s integrated
 ```
+
+## ROADMAP TO ALPHA
+* Add support for derivatives + extra distros
+* Manage X11 configs
+* Add NVIDIA mode
+* Add RTD3 power management

@@ -23,7 +23,7 @@ sudo ./main.sh -s integrated
 ln -sf /directory/to/envybash/main.sh ~/.local/bin/envybash
 ```
 ### Automatic
-1. Run this command (omit sudo to install for your user, not recommended though)
+1. Run this command (omit ``sudo`` to install for your user, not recommended though)
 ```
 sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/forkfoundinkitchenn/envybash/refs/heads/main/install.sh)"
 ```
@@ -53,4 +53,3 @@ envybash -d -s integrated
 * Add support for derivatives + extra distros
 * Manage X11 configs
 * Add NVIDIA mode
-* Add RTD3 power management

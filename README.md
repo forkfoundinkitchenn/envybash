@@ -3,7 +3,7 @@ An attempt of reimplementing EnvyControl in Bash
 
 ## NOTES
 1. This project is currently in a pre-alpha phase and lacks a lot of features that EnvyControl already has.
-2. At the moment, only Arch, Void, and Fedora are supported. I'm hoping to add support for derivatives and more distros soon.
+2. Theoretically.. Arch, Fedora, and Debian/Ubuntu should work.. That's all I plan to support for the time being, excluding derivatives.
 3. I have hardly looked at EnvyControl's source code, so this is mostly my interpretation of how it works.
 4. This is not intended to be a drop-in replacement for EnvyControl nor similar tools, I just wrote this for my own convenience and decided to make it a bigger thing.. **Use at your own risk!!**
 5. When running the automatic installer as a normal user, it won't work out of the box when running ``sudo envybash`` because it's unable to read your PATH.
@@ -45,7 +45,7 @@ envybash -q
 sudo envybash -v -s integrated
 ```
 
-## ROADMAP TO ALPHA
-* Add support for derivatives + extra distros
-* Manage X11 configs
-* Add NVIDIA mode
+## Planned features
+* X11 configuration management
+* NVIDIA-only mode
+* Derivative support

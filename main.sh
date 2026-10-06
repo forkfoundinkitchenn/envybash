@@ -3,7 +3,7 @@ set -euo pipefail
 
 envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 version='pre-alpha-0.2'
-nvidia_status_path=$/var/cache/envybash-state
+nvidia_status_path=/var/cache/envybash-state
 udev_rule=/etc/udev/rules.d/99-envybash.rules
 modprobe_conf=/etc/modprobe.d/99-envybash.conf
 verbose_flag=false
@@ -79,16 +79,16 @@ regen_initramfs() {
   v_log "detected distro id: $distro_id"
   case "$distro_id" in
   "void" | "fedora")
-    dracut --force
     v_log "dracut --force"
+    dracut --force
     ;;
   "arch")
-    mkinitcpio -P
     v_log "mkinitcpio -P"
+    mkinitcpio -P
     ;;
   "debian" | "ubuntu")
-    update-initramfs
     v_log "update-initramfs"
+    update-initramfs
     ;;
   *)
     e_log "distro unsupported"

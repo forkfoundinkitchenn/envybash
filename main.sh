@@ -105,7 +105,7 @@ switch_power_mode() {
     v_log "checking if run as root"
     root_check
     v_log "checking if system is already in integrated mode"
-    if [[ -f $udev_rule && -f modprobe_conf ]]; then
+    if [[ -f $udev_rule && -f $modprobe_conf ]]; then
       e_log "system is already in integrated mode!"
       exit 1
     elif [[ ! -f $udev_rule || ! -f $modprobe_conf ]]; then
@@ -181,8 +181,9 @@ debug_info() {
 }
 
 test_run() {
-  rule_import >test1
-  modprobe_import >test2
+  if [[ -f $udev_rule && -f $modprobe_conf ]]; then
+    o_log "$udev_rule $modprobe_conf"
+  fi
   exit 0
 }
 

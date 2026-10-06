@@ -44,10 +44,6 @@ envybash -q
 ```
 sudo envybash -v -s integrated
 ```
-* Dry run
-```
-envybash -d -s integrated
-```
 
 ## ROADMAP TO ALPHA
 * Add support for derivatives + extra distros

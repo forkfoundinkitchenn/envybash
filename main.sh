@@ -2,8 +2,8 @@
 set -euo pipefail
 
 envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-version='pre-alpha-0.1'
-nvidia_status_path=$HOME/.envybash-state
+version='pre-alpha-0.2'
+nvidia_status_path=$/var/cache/envybash-state
 udev_rule=/etc/udev/rules.d/99-envybash.rules
 modprobe_conf=/etc/modprobe.d/99-envybash.conf
 verbose_flag=false
@@ -26,9 +26,8 @@ v_log() {
 }
 help_me() {
   echo "envybash usage:
-  flags: -s (switch), -v (verbose), -q (query), -d (dry run), -i (debug info)
-modes: integrated, hybrid" >&2
-  exit 1
+  flags: -s (switch), -v (verbose), -q (query), -i (debug info)
+modes: integrated, hybrid"
 }
 root_check() {
   if [[ $EUID -ne 0 ]]; then
@@ -39,13 +38,17 @@ root_check() {
 
 # core logic functions
 rule_import() {
-  echo -e 'ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{remove}="1"
+  cat <<EOF
+ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{remove}="1"
 ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x8c8000", ATTR{remove}="1"
 ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{remove}="1"
-ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", ATTR{remove}="1"'
+ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", ATTR{remove}="1"
+EOF
 }
+
 modprobe_import() {
-  echo -e "blacklist nvidia
+  cat <<EOF
+blacklist nvidia
 blacklist nvidia_drm
 blacklist nvidia_uvm
 blacklist nvidia_modeset
@@ -68,86 +71,95 @@ alias nvidia_current_modeset off
 alias i2c_nvidia_gpu off
 alias nova_core off
 alias nova_drm off
-alias nouveau off"
+alias nouveau off
+EOF
 }
+
 regen_initramfs() {
   v_log "detected distro id: $distro_id"
   case "$distro_id" in
-  "void" | "fedora") dracut --force ;;
-  "arch") mkinitcpio -P ;;
+  "void" | "fedora")
+    dracut --force
+    v_log "dracut --force"
+    ;;
+  "arch")
+    mkinitcpio -P
+    v_log "mkinitcpio -P"
+    ;;
+  "debian" | "ubuntu")
+    update-initramfs
+    v_log "update-initramfs"
+    ;;
   *)
-    e_log "your distro may not be supported yet, if you think this is a mistake please open an issue in the official github repo"
+    e_log "distro unsupported"
     exit 1
     ;;
   esac
 }
 
-# mode switch functions
-integrated_mode() {
-  if [[ $dry_run = true ]]; then
-    o_log "!! DRY RUN !!"
-    o_log "imported rules to $udev_rule"
-    o_log "reloaded udev rules"
-    o_log "imported config to $modprobe_conf"
-    o_log "regenerating initramfs"
-    o_log "detected distro id: $distro_id"
-    o_log "set to integrated mode"
-    exit 0
-  fi
+switch_power_mode() {
+  case "$target_power_mode" in
+  "integrated")
+    o_log "switching to integrated mode.."
 
-  root_check
-  if [[ -f $udev_rule && -f $modprobe_conf ]]; then
-    e_log "active mode is already set to integrated mode"
-    exit 1
-  fi
+    v_log "checking if run as root"
+    root_check
+    v_log "checking if system is already in integrated mode"
+    if [[ -f $udev_rule && -f modprobe_conf ]]; then
+      e_log "system is already in integrated mode!"
+      exit 1
+    elif [[ ! -f $udev_rule || ! -f $modprobe_conf ]]; then
+      e_log "something bad happened, wiping and replacing.."
+      rm -f $udev_rule
+      rm -f $modprobe_conf
+    fi
+    v_log "writing to $udev_rule.."
+    rule_import >$udev_rule
+    v_log "wrote to $udev_rule successfully"
+    v_log "telling udevadm to reload udev rules"
+    udevadm control --reload-rules
+    udevadm trigger
+    v_log "reloaded rules successfully"
+    v_log "writing to $modprobe_conf"
+    modprobe_import >$modprobe_conf
+    v_log "wrote to $modprobe_conf successfully"
+    o_log "regenerating initramfs, this may take a while"
+    v_log "running regen_initramfs"
+    regen_initramfs
+    o_log "regenerated initramfs, you may now reboot your system"
+    v_log "writing to $nvidia_status_path"
+    echo "integrated" >$nvidia_status_path
+    ;;
+  "hybrid")
+    o_log "switching to hybrid mode.."
 
-  rule_import >$udev_rule
-  v_log "imported rules to $udev_rule"
-  udevadm control --reload-rules
-  udevadm trigger
-  v_log "reloaded udev rules"
-  modprobe_import >$modprobe_conf
-  v_log "imported config to $modprobe_conf"
-  o_log "regenerating initramfs, this may take a while"
-  regen_initramfs
-  o_log "set to integrated mode, restart your device to apply changes"
+    v_log "checking if run as root"
+    root_check
+    v_log "checking if system is already in integrated mode"
+    if [[ ! -f $udev_rule && ! -f $modprobe_conf ]]; then
+      e_log "system is already in hybrid mode!"
+      exit 1
+    fi
 
-  echo "integrated" >$nvidia_status_path
-  exit 0
-}
-
-hybrid_mode() {
-  if [[ $dry_run = true ]]; then
-    o_log "!! DRY RUN !!"
-    o_log "deleted $udev_rule and $modprobe_conf"
-    o_log "reloaded udev rules"
-    o_log "regenerating initramfs"
-    o_log "detected distro id: $distro_id"
-    o_log "set to hybrid mode"
-    exit 0
-  fi
-
-  root_check
-  if [[ ! -f $udev_rule && ! -f $modprobe_conf ]]; then
-    e_log "active mode is already set to hybrid mode"
-    exit 1
-  fi
-
-  rm -f {"$udev_rule","$modprobe_conf"}
-  v_log "deleted $udev_rule and $modprobe_conf"
-  udevadm control --reload-rules
-  udevadm trigger
-  v_log "reloaded udev rules"
-  o_log "regenerating initramfs, this may take a while"
-  regen_initramfs
-  o_log "set to hybrid mode, restart your device to apply changes"
-
-  echo "hybrid" >$nvidia_status_path
-  exit 0
-}
-
-nvidia_mode() {
-  e_log "you aren't supposed to be here!"
+    v_log "wiping $udev_rule.."
+    rm -f $udev_rule
+    v_log "wiped $udev_rule successfully"
+    v_log "telling udevadm to reload udev rules"
+    udevadm control --reload-rules
+    udevadm trigger
+    v_log "reloaded rules successfully"
+    v_log "wiping $modprobe_conf.."
+    rm -f $modprobe_conf
+    v_log "wiped $modprobe_conf successfully"
+    o_log "regenerating initramfs, this may take a while"
+    v_log "running regen_initramfs"
+    regen_initramfs
+    o_log "regenerated initramfs, you may now reboot your system"
+    v_log "writing to $nvidia_status_path"
+    echo "hybrid" >$nvidia_status_path
+    ;;
+  "nvidia") e_log "you aren't supposed to be here!" ;;
+  esac
 }
 
 query_mode() {
@@ -155,12 +167,8 @@ query_mode() {
     v_log "$udev_rule"
     v_log "$modprobe_conf"
     o_log "active mode: integrated"
-
-    echo "integrated" >$nvidia_status_path
   else
     o_log "active mode: hybrid"
-
-    echo "hybrid" >$nvidia_status_path
   fi
 }
 
@@ -172,15 +180,25 @@ debug_info() {
   o_log "vendor id: $vendor_id"
 }
 
+test_run() {
+  rule_import >test1
+  modprobe_import >test2
+  exit 0
+}
+
 # this is probably a really bad way to do it but it works for now
 if [[ $# -eq 0 ]]; then
-  help_me
+  help_me >&2
+  exit 1
 elif [[ $# -gt 0 && $1 != -* ]]; then
-  help_me
+  help_me >&2
+  exit 1
 elif [[ $# -gt 0 && $1 = '--' ]]; then
-  help_me
+  help_me >&2
+  exit 1
 elif [[ $# -gt 0 && $1 = - ]]; then
-  help_me
+  help_me >&2
+  exit 1
 fi
 
 # main
@@ -188,9 +206,12 @@ while getopts ":s:vqdi" flag; do
   case "$flag" in
   s)
     case "$OPTARG" in
-    "integrated" | "i") integrated_mode ;;
-    "hybrid" | "h") hybrid_mode ;;
-    *) help_me ;;
+    "integrated" | "i") target_power_mode=integrated ;;
+    "hybrid" | "h") target_power_mode=hybrid ;;
+    *)
+      help_me >&2
+      exit 1
+      ;;
     esac
     ;;
   v)
@@ -198,11 +219,11 @@ while getopts ":s:vqdi" flag; do
     verbose_flag=true
     ;;
   q) query_mode ;;
-  d)
-    o_log "doing a dry run for this instance"
-    dry_run=true
-    ;;
   i) debug_info ;;
-  *) help_me ;;
+  d) test_run ;;
+  *)
+    help_me >&2
+    exit 1
+    ;;
   esac
 done

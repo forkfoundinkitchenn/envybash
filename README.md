@@ -20,10 +20,10 @@ sudo ./main.sh -s integrated
 ```
 3. Or symlink it to a directory in your PATH
 ```
-ln -sf /directory/to/envybash/main.sh ~/.local/bin/envybash
+sudo ln -sf /directory/to/envybash/main.sh /usr/bin/envybash
 ```
 ### Automatic
-1. Run this command (omit ``sudo`` to install for your user, not recommended though)
+1. Run this command (alternatively, omit ``sudo`` to install for your user)
 ```
 sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/forkfoundinkitchenn/envybash/refs/heads/main/install.sh)"
 ```

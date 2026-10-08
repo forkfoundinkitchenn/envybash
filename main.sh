@@ -1,11 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
-envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-version='pre-alpha-0.2'
-nvidia_status_path=/var/cache/envybash-state
-udev_rule=/etc/udev/rules.d/99-envybash.rules
-modprobe_conf=/etc/modprobe.d/99-envybash.conf
+readonly envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+readonly version='pre-alpha-0.3'
+readonly nvidia_status_path=/var/cache/envybash-state
+readonly udev_rule=/etc/udev/rules.d/99-envybash-udev.rules
+readonly modprobe_conf=/etc/modprobe.d/99-envybash-modprobe.conf
+readonly xorg_conf=/etc/X11/xorg.conf.d/99-envybash-xorg.conf
+readonly profile_sh=/etc/profile.d/99-envybash-profile.sh
+readonly supported_distributions=("void" "fedora" "debian" "ubuntu" "arch")
 verbose_flag=false
 test_flag=false
 
@@ -36,7 +39,7 @@ root_check() {
   fi
 }
 
-# core logic functions
+# logical functions
 rule_import() {
   cat <<EOF
 ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{remove}="1"
@@ -75,6 +78,48 @@ alias nouveau off
 EOF
 }
 
+profile_import() {
+  case "$vendor_id" in
+  "intel")
+    cat <<EOF
+#!/bin/sh
+
+export VK_DRIVER_FILES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json
+EOF
+    ;;
+  "amd")
+    cat <<EOF
+#!/bin/sh
+
+export VK_DRIVER_FILES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json
+EOF
+    ;;
+  esac
+}
+
+xorg_import() {
+  case "$vendor_id" in
+  "intel")
+    cat <<EOF
+Section "Device"
+      Identifier "Intel Graphics"
+      Driver "modesetting"
+      Option "PrimaryGPU" "yes"
+EndSection
+EOF
+    ;;
+  "amd")
+    cat <<EOF
+Section "Device"
+      Identifier "AMD"
+      Driver "amdgpu"
+      Option "PrimaryGPU" "yes"
+EndSection
+EOF
+    ;;
+  esac
+}
+
 regen_initramfs() {
   v_log "detected distro id: $distro_id"
   case "$distro_id" in
@@ -92,80 +137,76 @@ regen_initramfs() {
     ;;
   *)
     e_log "distro unsupported"
+    rm -f $udev_rule
+    rm -f $modprobe_conf
+    rm -f $xorg_conf
     exit 1
     ;;
   esac
 }
 
 switch_power_mode() {
+  v_log "checking if root.."
+  root_check
+  # mode-specific commands
   case "$target_power_mode" in
   "integrated")
-    o_log "switching to integrated mode.."
-
-    v_log "checking if run as root"
-    root_check
-    v_log "checking if system is already in integrated mode"
-    if [[ -f $udev_rule && -f $modprobe_conf ]]; then
-      e_log "system is already in integrated mode!"
+    v_log "checking if already using target mode.."
+    if [[ -f $modprobe_conf && -f $udev_rule && -f $xorg_conf && -f $profile_sh ]]; then
+      e_log "system is already using integrated mode!"
       exit 1
-    elif [[ ! -f $udev_rule || ! -f $modprobe_conf ]]; then
-      e_log "something bad happened, wiping and replacing.."
+    elif [[ ! -f $modprobe_conf || ! -f $udev_rule || ! -f $xorg_conf || ! -f $profile_sh ]]; then
+      e_log "something went wrong, wiping and replacing"
       rm -f $udev_rule
       rm -f $modprobe_conf
+      rm -f $xorg_conf
+      rm -f $profile_sh
     fi
-    v_log "writing to $udev_rule.."
-    rule_import >$udev_rule
-    v_log "wrote to $udev_rule successfully"
-    v_log "telling udevadm to reload udev rules"
-    udevadm control --reload-rules
-    udevadm trigger
-    v_log "reloaded rules successfully"
+
+    o_log "switching to integrated mode.."
     v_log "writing to $modprobe_conf"
     modprobe_import >$modprobe_conf
-    v_log "wrote to $modprobe_conf successfully"
-    o_log "regenerating initramfs, this may take a while"
-    v_log "running regen_initramfs"
-    regen_initramfs
-    o_log "regenerated initramfs, you may now reboot your system"
-    v_log "writing to $nvidia_status_path"
+    v_log "writing to $udev_rule"
+    rule_import >$udev_rule
+    v_log "writing to $xorg_conf"
+    xorg_import >$xorg_conf
+    v_log "writing to $profile_sh"
+    profile_import >$profile_sh
     echo "integrated" >$nvidia_status_path
     ;;
   "hybrid")
-    o_log "switching to hybrid mode.."
-
-    v_log "checking if run as root"
-    root_check
-    v_log "checking if system is already in hybrid mode"
-    if [[ ! -f $udev_rule && ! -f $modprobe_conf ]]; then
-      e_log "system is already in hybrid mode!"
+    v_log "checking if already using target mode.."
+    if [[ ! -f $modprobe_conf && ! -f $udev_rule && ! -f $xorg_conf && ! -f $profile_sh ]]; then
+      e_log "system is already using hybrid mode!"
       exit 1
     fi
 
-    v_log "wiping $udev_rule.."
+    o_log "switching to hybrid mode.."
     rm -f $udev_rule
-    v_log "wiped $udev_rule successfully"
-    v_log "telling udevadm to reload udev rules"
-    udevadm control --reload-rules
-    udevadm trigger
-    v_log "reloaded rules successfully"
-    v_log "wiping $modprobe_conf.."
     rm -f $modprobe_conf
-    v_log "wiped $modprobe_conf successfully"
-    o_log "regenerating initramfs, this may take a while"
-    v_log "running regen_initramfs"
-    regen_initramfs
-    o_log "regenerated initramfs, you may now reboot your system"
-    v_log "writing to $nvidia_status_path"
+    rm -f $xorg_conf
+    rm -f $profile_sh
     echo "hybrid" >$nvidia_status_path
     ;;
-  "nvidia") e_log "you aren't supposed to be here!" ;;
   esac
+
+  # main set of commands to run afterwards
+  v_log "reloading udev rules using udevadm"
+  udevadm control --reload-rules
+  udevadm trigger
+  v_log "reloaded udev rules"
+  o_log "regenerating initramfs, this may take a while. leave this window open."
+  regen_initramfs
+  o_log "regenerating initramfs"
+  o_log "complete, you may either relogin or reboot your system"
 }
 
+# miscallaneous functions
 query_mode() {
-  if [[ -f $udev_rule && -f $modprobe_conf ]]; then
+  if [[ -f $udev_rule && -f $modprobe_conf && -f $xorg_conf ]]; then
     v_log "$udev_rule"
     v_log "$modprobe_conf"
+    v_log "$xorg_conf"
     o_log "active mode: integrated"
   else
     o_log "active mode: hybrid"
@@ -185,10 +226,7 @@ test_run() {
     exit 1
   fi
 
-  if [[ -f $udev_rule && -f $modprobe_conf ]]; then
-    o_log "$udev_rule $modprobe_conf"
-  fi
-  exit 0
+  xorg_config >test1
 }
 
 # this is probably a really bad way to do it but it works for now
@@ -207,6 +245,24 @@ elif [[ $# -gt 0 && $1 = - ]]; then
 fi
 
 # main
+
+# unused for the time being
+#for distro in ${supported_distributions[@]}; do
+#  if [[ ! $distro = $distro_id ]]; then
+#    e_log "hi"
+#    echo $distro
+#  else
+#    o_log "hi"
+#    echo $distro
+#  fi
+#done
+
+case "$vendor_id" in
+"GenuineIntel") vendor_id="intel" ;;
+"AuthenticAMD") vendor_id="amd" ;;
+*) vendor_id="unknown" ;;
+esac
+
 while getopts ":s:vqdi" flag; do
   case "$flag" in
   s)
@@ -232,6 +288,7 @@ while getopts ":s:vqdi" flag; do
   q) query_mode ;;
   i) debug_info ;;
   d) test_run ;;
+  p) e_log "what" ;;
   *)
     help_me >&2
     exit 1

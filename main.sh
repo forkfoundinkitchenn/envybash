@@ -203,10 +203,11 @@ switch_power_mode() {
 
 # miscallaneous functions
 query_mode() {
-  if [[ -f $udev_rule && -f $modprobe_conf && -f $xorg_conf ]]; then
+  if [[ -f $udev_rule && -f $modprobe_conf && -f $xorg_conf && -f $profile_sh ]]; then
     v_log "$udev_rule"
     v_log "$modprobe_conf"
     v_log "$xorg_conf"
+    v_log "$profile_sh"
     o_log "active mode: integrated"
   else
     o_log "active mode: hybrid"

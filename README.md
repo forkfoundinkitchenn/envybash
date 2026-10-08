@@ -46,6 +46,5 @@ sudo envybash -v -s integrated
 ```
 
 ## PLANNED FEATURES
-* X11 configuration management
 * NVIDIA-only mode
 * Derivative support

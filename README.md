@@ -45,6 +45,6 @@ envybash -q
 sudo envybash -v -s integrated
 ```
 
-## PLANNED FEATURES
+## ALPHA RELEASE
 * NVIDIA-only mode
 * Derivative support

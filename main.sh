@@ -112,7 +112,7 @@ EOF
     cat <<EOF
 Section "Device"
       Identifier "AMD"
-      Driver "amdgpu"
+      Driver "modesetting"
       Option "PrimaryGPU" "yes"
 EndSection
 EOF

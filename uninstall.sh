@@ -20,9 +20,9 @@ uninstall() {
   if_root
   envybash_home={/etc/envybash,$HOME/.local/share/envybash}
   envybash_binary={/usr/bin/envybash,$HOME/.local/bin/envybash}
-  rm -rf "$envybash_home"
+  rm -rf $envybash_home
   o_log "removed $envybash_home"
-  rm -f "$envybash_binary"
+  rm -f $envybash_binary
   o_log "removed $envybash_binary"
   o_log "complete"
 }

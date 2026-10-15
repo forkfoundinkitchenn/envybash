@@ -19,10 +19,10 @@ install() {
 
   if [[ -e $envybash_home ]]; then
     o_log "envybash appears to already be installed, overwrite?"
-    answer=""
+    answer="null"
 
-    while [ -z $answer ]; do
-      read -r -p '[y/n] ' answer
+    while [[ $answer = "null" ]]; do
+      read -r -p '[Y/n] ' answer
       shopt -s nocasematch
       case "$answer" in
       "n" | "no")
@@ -33,12 +33,19 @@ install() {
         answer="yes"
         ;;
       *)
-        answer=""
+        if [[ -z $answer ]]; then
+          break
+        else
+          answer="null"
+        fi
         ;;
       esac
     done
     shopt -u nocasematch
   fi
+
+  rm -rf $envybash_home
+  rm -f $envybash_binary
 
   git clone /home/juneforkazoid/Projects/envybash $envybash_home
   ln -sf $envybash_home/main.sh $envybash_binary

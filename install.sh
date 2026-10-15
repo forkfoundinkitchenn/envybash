@@ -21,6 +21,11 @@ done
 
 install() {
   if [[ $EUID -ne 0 ]]; then
+    if [[ -e /etc/envybash ]]; then
+      e_log "envybash appears to be already installed system-wide"
+      exit 1
+    fi
+
     envybash_home=$HOME/.local/share/envybash
     envybash_binary=$HOME/.local/bin/envybash
   else

@@ -59,7 +59,7 @@ install() {
   rm -f $envybash_binary
 
   git clone $envybash_git_location $envybash_home
-  ln -sf $envybash_home/main.sh $envybash_binary
+  ln -sf $envybash_home/envybash.sh $envybash_binary
   o_log "installed envybash into $envybash_home and $envybash_binary"
 }
 

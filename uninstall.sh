@@ -1,19 +1,7 @@
 #!/bin/bash
 set -euo pipefail
-o_log() {
-  echo "[*] $@"
-}
-
-e_log() {
-  echo "[-] $@" >&2
-}
-
-if_root() {
-  if [[ $EUID -ne 0 ]]; then
-    e_log "run this command with elevated permissions"
-    exit 1
-  fi
-}
+current_directory=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+source $current_directory/helper-functions.sh
 
 uninstall() {
   if [[ -e /etc/envybash ]]; then

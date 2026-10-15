@@ -1,6 +1,4 @@
 #/bin/bash
-set -euo pipefail
-
 o_log() {
   echo "[*] $@"
 }

@@ -6,17 +6,17 @@ readonly version='pre-alpha-0.5'
 
 readonly udev_path=/etc/udev/rules.d/00-nvbash.rules
 readonly modprobe_path=/etc/modprobe.d/00-nvbash.conf
+declare -r -a supportedDistros=("void" "debian" "fedora" "arch")
 
 verbose=false
 test_run=false
+supported=false
 
-# add support for derivatives later
 distro_id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
 
 source $envybash_home/helper-functions.sh
 
 project_info() {
-  needs_help=false
   o_log "version: $version"
   o_log "home: $envybash_home"
   if [[ -f $udev_path ]]; then o_log "udev rule: $udev_path"; fi

@@ -2,12 +2,14 @@
 set -euo pipefail
 
 readonly envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-readonly version='pre-alpha-0.3'
 readonly nvidia_status_path=/var/cache/envybash-state
+readonly version='pre-alpha-0.4'
+
 readonly udev_rule=/etc/udev/rules.d/99-envybash-udev.rules
 readonly modprobe_conf=/etc/modprobe.d/99-envybash-modprobe.conf
 readonly xorg_conf=/etc/X11/xorg.conf.d/99-envybash-xorg.conf
 readonly profile_sh=/etc/profile.d/99-envybash-profile.sh
+
 readonly supported_distributions=("void" "fedora" "debian" "ubuntu" "arch")
 verbose_flag=false
 test_flag=false

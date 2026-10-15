@@ -39,6 +39,7 @@ ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x8c8000"
 ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{remove}="1"
 ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", ATTR{remove}="1"
 EOF
+  if [[ -f $udev_path ]]; then v_log "concatenated into $udev_path"; fi
 
   cat <<EOF >$modprobe_path
 blacklist nvidia
@@ -66,17 +67,21 @@ alias nova_core off
 alias nova_drm off
 alias nouveau off
 EOF
+  if [[ -f $modprobe_path ]]; then v_log "concatenated into $modprobe_path"; fi
 }
 
 rebuild_initramfs() {
   case "$distro_id" in
   "void" | "fedora")
+    v_log "dracut --force"
     dracut --force
     ;;
   "arch")
+    v_log "mkinitcpio -P"
     mkinitcpio -P
     ;;
   "debian" | "ubuntu")
+    v_log "update-initramfs"
     update-initramfs
     ;;
   esac
@@ -93,16 +98,24 @@ switch_mode() {
       exit 1
     elif [[ -f $udev_path || -f $modprobe_path ]]; then
       rm -f {$udev_path,$modprobe_path}
+      v_log "removed $udev_path and $modprobe_path"
     fi
 
     importer_func
     echo 'integrated' >$status_cache
     ;;
   "hybrid")
+    if [[ ! -f $udev_path && ! -f $udev_path ]]; then
+      e_log "system is already in hybrid mode"
+      exit 1
+    fi
     rm -rf {$udev_path,$modprobe_path}
+    v_log "removed $udev_path and $modprobe_path"
+
     echo 'hybrid' >$status_cache
     ;;
   esac
+  v_log "$(<$status_cache)"
 
   udevadm control --reload-rules
   udevadm trigger

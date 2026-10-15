@@ -16,15 +16,19 @@ if_root() {
 }
 
 uninstall() {
-  o_log "this script only works if you installed envybash into the directories from install.sh"
-  if_root
-  envybash_home={/etc/envybash,$HOME/.local/share/envybash}
-  envybash_binary={/usr/bin/envybash,$HOME/.local/bin/envybash}
+  if [[ -e /etc/envybash ]]; then
+    if_root
+    envybash_home=/etc/envybash
+    envybash_binary=/usr/bin/envybash
+  elif [[ -e $HOME/.local/share/envybash ]]; then
+    envybash_home=$HOME/.local/share/envybash
+    envybash_binary=$HOME/.local/bin/envybash
+  fi
+
   rm -rf $envybash_home
   o_log "removed $envybash_home"
   rm -f $envybash_binary
   o_log "removed $envybash_binary"
-  o_log "complete"
 }
 
 uninstall

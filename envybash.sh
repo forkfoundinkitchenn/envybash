@@ -126,7 +126,7 @@ switch_mode() {
   done
   shopt -u nocasematch
 
-  if [[ $answer = "y" ]]; then o_log "pretend i rebooted"; fi
+  if [[ $answer = "y" ]]; then reboot; fi
 }
 
 if [[ $# -eq 0 ]]; then

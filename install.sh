@@ -11,16 +11,13 @@ e_log() {
 
 while getopts ":l:" flag; do
   case "$flag" in
-    l)
-      if [[ ! -z $OPTARG ]]; then
-        envybash_git_location=$OPTARG
-      fi
-      ;;
+  l)
+    if [[ ! -z $OPTARG ]]; then
+      envybash_git_location=$OPTARG
+    fi
+    ;;
   esac
 done
-
-if [[ $# -ge 0 ]]; then
-fi
 
 install() {
   if [[ $EUID -ne 0 ]]; then

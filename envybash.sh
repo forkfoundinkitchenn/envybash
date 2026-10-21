@@ -93,7 +93,7 @@ rebuild_initramfs() {
   "arch")
     command="mkinitcpio -P"
     ;;
-  "debian")
+  "debian" | "ubuntu")
     command="update-initramfs"
     ;;
   *)

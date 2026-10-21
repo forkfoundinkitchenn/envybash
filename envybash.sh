@@ -6,7 +6,7 @@ readonly version='pre-alpha-0.6'
 
 readonly udev_path=/etc/udev/rules.d/00-nvbash.rules
 readonly modprobe_path=/etc/modprobe.d/00-nvbash.conf
-declare -r -a supportedDistros=("void" "debian" "fedora" "arch")
+declare -r -a supportedDistros=("void" "debian" "ubuntu" "fedora" "arch")
 distro_id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
 
 verbose=false
@@ -23,6 +23,22 @@ project_info() {
   o_log "active mode: $(<$status_cache)"
   v_log "detected distro id: $distro_id"
   v_log "verbose: $verbose"
+}
+
+validate_distro() {
+  for distro in ${supportedDistros[@]}; do
+    v_log "detected distribution: $distro"
+    if [[ $distro = $distro_id ]]; then
+      supported=true
+      v_log "distro is valid"
+      return 0
+    fi
+  done
+
+  if [[ $supported = false ]]; then
+    e_log "your distro is currently unsupported"
+    exit 1
+  fi
 }
 
 help_me() {
@@ -96,6 +112,7 @@ rebuild_initramfs() {
 switch_mode() {
   o_log "switching to $target_mode mode"
   if_root
+  validate_distro
 
   case "$target_mode" in
   "integrated")

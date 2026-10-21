@@ -12,6 +12,8 @@ distro_id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
 verbose=false
 test_run=false
 supported=false
+say_yes=false
+force_switch=false
 
 source $envybash_home/helper-functions.sh
 
@@ -43,7 +45,7 @@ validate_distro() {
 
 help_me() {
   cat <<EOF
-usage: envybash [-v] [-i] [-s integrated|hybrid]
+usage: envybash [-v] [-i] [-f] [-y] [-s integrated|hybrid]
 EOF
 }
 
@@ -88,13 +90,13 @@ EOF
 rebuild_initramfs() {
   case "$distro_id" in
   "void" | "fedora")
-    command="dracut --force"
+    command=(dracut --force)
     ;;
   "arch")
-    command="mkinitcpio -P"
+    command=(mkinitcpio -P)
     ;;
   "debian" | "ubuntu")
-    command="update-initramfs"
+    command=(update-initramfs)
     ;;
   *)
     e_log "distro unsupported"
@@ -105,45 +107,18 @@ rebuild_initramfs() {
     ;;
   esac
 
-  $($command)
-  v_log $command
+  v_log "${command[@]}"
+  ${command[@]}
 }
 
-switch_mode() {
-  o_log "switching to $target_mode mode"
-  if_root
-  validate_distro
+prompt_user() {
+  reboot=(reboot)
+  if [[ $say_yes = true ]]; then
+    ${reboot[@]}
+    return 0
+  fi
 
-  case "$target_mode" in
-  "integrated")
-    if [[ -f $udev_path && -f $modprobe_path ]]; then
-      e_log "system is already in integrated mode"
-      exit 1
-    elif [[ -f $udev_path || -f $modprobe_path ]]; then
-      rm -f {$udev_path,$modprobe_path}
-      v_log "removed $udev_path and $modprobe_path"
-    fi
-
-    importer_func
-    echo 'integrated' >$status_cache
-    ;;
-  "hybrid")
-    if [[ ! -f $udev_path && ! -f $udev_path ]]; then
-      e_log "system is already in hybrid mode"
-      exit 1
-    fi
-    rm -rf {$udev_path,$modprobe_path}
-    v_log "removed $udev_path and $modprobe_path"
-
-    echo 'hybrid' >$status_cache
-    ;;
-  esac
-  v_log "$(<$status_cache)"
-
-  udevadm control --reload-rules
-  udevadm trigger
-  rebuild_initramfs
-  o_log "done, would you like to restart now?"
+  o_log "would you like to restart now?"
   answer=""
   shopt -s nocasematch
   while [[ -z $answer ]]; do
@@ -162,7 +137,48 @@ switch_mode() {
   done
   shopt -u nocasematch
 
-  if [[ $answer = "y" ]]; then reboot; fi
+  if [[ $answer = "y" ]]; then ${reboot[@]}; fi
+}
+
+switch_mode() {
+  o_log "switching to $target_mode mode"
+  if_root
+  validate_distro
+
+  case "$target_mode" in
+  "integrated")
+    if [[ ! $force_switch = true ]]; then
+      if [[ -f $modprobe_path && $udev_path ]]; then
+        e_log "system is already in integrated mode"
+        exit 1
+      elif [[ ! -f $modprobe_path || ! -f $udev_path ]]; then
+        rm -f {$modprobe_path,$udev_path}
+        v_log "removed $modprobe_path and $udev_path"
+      fi
+    fi
+
+    importer_func
+    echo 'integrated' >$status_cache
+    ;;
+  "hybrid")
+    if [[ ! $force_switch = true ]]; then
+      if [[ ! -f $modprobe_path && ! -f $udev_path ]]; then
+        e_log "system is already in hybrid mode"
+        exit 1
+      fi
+    fi
+    rm -f {$modprobe_path,$udev_path}
+    v_log "removed $modprobe_path and $udev_path"
+
+    echo 'hybrid' >$status_cache
+    ;;
+  esac
+  v_log "status cache: $(<$status_cache)"
+
+  udevadm control --reload-rules
+  udevadm trigger
+  rebuild_initramfs
+  prompt_user
 }
 
 if [[ $# -eq 0 ]]; then
@@ -173,7 +189,7 @@ elif [[ $# -ge 0 && $1 != -* ]]; then
   exit 1
 fi
 
-while getopts ":vis:" flag; do
+while getopts ":vifys:" flag; do
   case $flag in
   v) verbose=true ;;
   i) project_info ;;
@@ -193,6 +209,8 @@ while getopts ":vis:" flag; do
     esac
     switch_mode
     ;;
+  f) force_switch=true ;;
+  y) say_yes=true ;;
   *)
     help_me
     exit 1

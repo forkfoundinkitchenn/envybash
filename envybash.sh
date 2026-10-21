@@ -2,17 +2,16 @@
 set -euo pipefail
 readonly envybash_home=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 readonly status_cache=/var/cache/envybash-state
-readonly version='pre-alpha-0.5'
+readonly version='pre-alpha-0.6'
 
 readonly udev_path=/etc/udev/rules.d/00-nvbash.rules
 readonly modprobe_path=/etc/modprobe.d/00-nvbash.conf
 declare -r -a supportedDistros=("void" "debian" "fedora" "arch")
+distro_id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
 
 verbose=false
 test_run=false
 supported=false
-
-distro_id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
 
 source $envybash_home/helper-functions.sh
 
@@ -73,18 +72,25 @@ EOF
 rebuild_initramfs() {
   case "$distro_id" in
   "void" | "fedora")
-    v_log "dracut --force"
-    dracut --force
+    command="dracut --force"
     ;;
   "arch")
-    v_log "mkinitcpio -P"
-    mkinitcpio -P
+    command="mkinitcpio -P"
     ;;
-  "debian" | "ubuntu")
-    v_log "update-initramfs"
-    update-initramfs
+  "debian")
+    command="update-initramfs"
+    ;;
+  *)
+    e_log "distro unsupported"
+    rm -f $modprobe_path
+    rm -f $udev_path
+    rm -f $status_cache
+    exit 1
     ;;
   esac
+
+  $($command)
+  v_log $command
 }
 
 switch_mode() {
